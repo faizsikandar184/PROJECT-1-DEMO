@@ -44,4 +44,9 @@ type nul > pages\CustomizationPage.ts
 10. Add testConstants.ts in constant for reusable constant
 11. Add baseFixture.ts for using the objects and things prepared before test
 12. Configure playwright.config.ts    
-13. 
+13. Add git things
+    git init
+    git status
+    git add .
+    git commit -m "Initial Playwright TypeScript framework"
+    
