@@ -1,0 +1,6 @@
+{
+    "validUser": {
+        "username": "test@example.com",
+        "password": "password"
+    }
+}
