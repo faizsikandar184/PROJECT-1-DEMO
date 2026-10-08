@@ -1,0 +1,287 @@
+import "dotenv/config";
+import nodemailer from "nodemailer";
+
+interface TestResults {
+  passed: number;
+  failed: number;
+  skipped: number;
+  total: number;
+  duration: string;
+}
+
+export async function sendTestEmail(results: TestResults) {
+  const {
+    passed,
+    failed,
+    skipped,
+    total,
+    duration
+  } = results;
+
+  const passPercentage =
+    total > 0 ? Math.round((passed / total) * 100) : 0;
+
+  const status = failed === 0 ? "PASSED" : "FAILED";
+
+  const statusIcon = failed === 0 ? "✅" : "❌";
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: process.env.SMTP_SECURE === "true",
+
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD
+    }
+  });
+
+  const html = `
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+  <style>
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f4f6f8;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #333333;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 30px auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .header {
+      background: #111827;
+      color: white;
+      padding: 28px 32px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    .status {
+      padding: 24px 32px;
+      background: ${failed === 0 ? "#ecfdf5" : "#fef2f2"};
+      border-bottom: 1px solid #eeeeee;
+    }
+
+    .status h2 {
+      margin: 0;
+      color: ${failed === 0 ? "#047857" : "#b91c1c"};
+      font-size: 20px;
+    }
+
+    .content {
+      padding: 28px 32px;
+    }
+
+    .summary {
+      display: table;
+      width: 100%;
+      border-spacing: 10px;
+      margin: 0 -10px;
+    }
+
+    .card {
+      display: table-cell;
+      width: 25%;
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 18px 10px;
+      text-align: center;
+    }
+
+    .number {
+      font-size: 25px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+
+    .passed {
+      color: #059669;
+    }
+
+    .failed {
+      color: #dc2626;
+    }
+
+    .skipped {
+      color: #d97706;
+    }
+
+    .total {
+      color: #374151;
+    }
+
+    .details {
+      margin-top: 25px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .details td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #eeeeee;
+      font-size: 14px;
+    }
+
+    .details td:first-child {
+      font-weight: bold;
+      width: 40%;
+    }
+
+    .button-container {
+      text-align: center;
+      margin: 30px 0 10px;
+    }
+
+    .button {
+      display: inline-block;
+      background: #2563eb;
+      color: white !important;
+      text-decoration: none;
+      padding: 13px 24px;
+      border-radius: 7px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .footer {
+      padding: 20px 32px;
+      background: #f9fafb;
+      color: #6b7280;
+      font-size: 12px;
+      text-align: center;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Playwright Automation Test Report</h1>
+    <p>E-Commerce Automation Framework</p>
+  </div>
+
+  <div class="status">
+    <h2>${statusIcon} Test Execution ${status}</h2>
+  </div>
+
+  <div class="content">
+
+    <div class="summary">
+
+      <div class="card">
+        <div class="number total">${total}</div>
+        <div class="label">Total</div>
+      </div>
+
+      <div class="card">
+        <div class="number passed">${passed}</div>
+        <div class="label">Passed</div>
+      </div>
+
+      <div class="card">
+        <div class="number failed">${failed}</div>
+        <div class="label">Failed</div>
+      </div>
+
+      <div class="card">
+        <div class="number skipped">${skipped}</div>
+        <div class="label">Skipped</div>
+      </div>
+
+    </div>
+
+    <table class="details">
+
+      <tr>
+        <td>Pass Percentage</td>
+        <td>${passPercentage}%</td>
+      </tr>
+
+      <tr>
+        <td>Execution Duration</td>
+        <td>${duration}</td>
+      </tr>
+
+      <tr>
+        <td>Environment</td>
+        <td>${process.env.TEST_ENV || "Not specified"}</td>
+      </tr>
+
+      <tr>
+        <td>Browser</td>
+        <td>${process.env.BROWSER || "Chromium"}</td>
+      </tr>
+
+      <tr>
+        <td>Execution Time</td>
+        <td>${new Date().toLocaleString()}</td>
+      </tr>
+
+    </table>
+
+    <div class="button-container">
+
+      <a
+        class="button"
+        href="${process.env.REPORT_URL || "#"}"
+      >
+        View Playwright HTML Report
+      </a>
+
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Automated notification generated by the Playwright TypeScript QA Framework.
+  </div>
+
+</div>
+
+</body>
+
+</html>
+`;
+
+  await transporter.sendMail({
+    from: `"Playwright Automation" <${process.env.SMTP_USER}>`,
+    to: process.env.EMAIL_TO,
+    subject: `${statusIcon} Playwright Test Report - ${status}`,
+    html
+  });
+
+  console.log("📧 Test report email sent successfully.");
+}

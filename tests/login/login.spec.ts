@@ -1,7 +1,15 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/baseFixture';
 
-test('Verify Google homepage', async ({ page }) => {
-  await page.goto('https://www.google.com');
+test.describe('Login', () => {
 
-  await expect(page).toHaveTitle(/Google/);
+  test('User should be able to login successfully', async ({ loginPage, page }) => {
+
+    await loginPage.navigate('/');
+
+    await loginPage.login('standard_user', 'secret_sauce');
+
+    await expect(page).toHaveURL(/inventory\.html/);
+
+  });
+
 });

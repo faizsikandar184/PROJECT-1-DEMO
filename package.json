@@ -10,12 +10,15 @@
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.63.0",
-    "@types/node": "^22.20.2",
+    "@types/node": "^22.20.4",
+    "@types/nodemailer": "^8.0.2",
     "allure-playwright": "^3.12.1",
     "eslint": "^10.10.0",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.15"
   },
   "dependencies": {
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "nodemailer": "^10.0.10"
   }
 }
